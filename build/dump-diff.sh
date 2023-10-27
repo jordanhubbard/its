@@ -28,6 +28,7 @@ tape1="`absolute $1`"
 tape2="`absolute $2`"
 home="$PWD"
 tmp="$PWD/tmp.$$"
+xfile="$tmp/tape2/_temp_/upgrade.xfile"
 diffs="$tmp/diffs"
 
 trap cleanup EXIT INT TERM QUIT
@@ -38,7 +39,7 @@ cd "$tmp"
 extract tape1 "$tape1"
 extract tape2 "$tape2"
 
-rm -f "$diffs"
+rm -f "$diffs" "$xfile"
 
 output() {
     echo "$1: $2"
@@ -86,9 +87,21 @@ for dir in *; do
     fi
 done
 
+cd "$tmp/tape1"
+for dir in *; do
+    cd "$tmp/tape1/$dir"
+    for $file in *; do
+        if \! test -r "../tape2/$dir"; then
+            echo "REMOVED FILE: $file"
+            echo ":delete $dir;$file" >> "$xfile"
+        fi
+    done
+done
+
 cd "$tmp/tape2"
 head -1 "$diffs" | xargs itstar cvf "$home/diffs.tap"
 tail +2 "$diffs" | xargs itstar rvf "$home/diffs.tap"
+itstar rvf  "$home/diffs.tap" _temp_/upgrade.xfile
 rm "$diffs"
 
 cd "$home"
