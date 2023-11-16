@@ -46,15 +46,15 @@ chaosnet - Start a local Chaosnet.
 
 EOF
 
-    touch out/simh/nohelp
+    touch out/simhv3/nohelp
 }
 
-test -f out/simh/nohelp || help
+test -f out/simhv3/nohelp || help
 
 while test -n "$1"; do
     "$1"
     shift
 done
 
-tools/simh/BIN/pdp10 out/simh/boot
+tools/simhv3/BIN/pdp10 build/simhv3/boot
 exit 0
